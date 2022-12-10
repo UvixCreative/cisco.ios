@@ -119,9 +119,50 @@ options:
         - dynamic
         - dynamic_auto
         - dynamic_desirable
-        - private_vlan_host
-        - private_vlan_promiscuous
-        - private_vlan_trunk
+        - private_vlan
+      private_vlan:
+        description:
+        - Private vlan configuration options.
+        type: dict
+        suboptions:
+          mode:
+            description:
+            - Private vlan mode.
+            type: str
+            choices:
+            - host
+            - trunk
+            - promiscuous
+          association:
+            description:
+            - Asociates the primary private vlan with the secondary private vlan.
+            type: dict
+            suboptions:
+              primary:
+                description:
+                - The VLAN ID of the primary private VLAN.
+                type: int
+              secondary:
+                description:
+                - The VLAN ID of the secondary (community or isolated) private VLAN.
+                type: int
+          mapping:
+            description:
+            - On a private-vlan promiscuous port, associates a primary private VLAN with all of its secondary private VLAN IDs.
+            - If configured to be private-vlan trunk promiscuous, this will configure the promiscuous mapping for the trunk.
+            type: dict
+            suboptions:
+              primary:
+                description:
+                - The VLAN ID of the primary private VLAN.
+                type: int
+              secondary:
+                description:
+                - List of associated secondary private VLANs.
+                - List items should be the VLAN ID of all secondary private VLANs.
+                type: list
+                elements: int
+
   running_config:
     description:
       - This option is used only with state I(parsed).
