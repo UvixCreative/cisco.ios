@@ -67,10 +67,31 @@ class L2_interfacesArgs(object):  # pylint: disable=R0903
                         "dynamic",
                         "dynamic_auto",
                         "dynamic_desirable",
-                        "private_vlan_host",
-                        "private_vlan_promiscuous",
-                        "private_vlan_trunk",
+                        "private_vlan",
                     ],
+                },
+                "private_vlan": {
+                    "type": "dict",
+                    "suboptions": {
+                        "mode": {
+                            "type": "str",
+                            "choices": ["host", "trunk", "promiscuous", "trunk_promiscuous"],
+                        },
+                        "association": {
+                            "type": "dict",
+                            "suboptions": {
+                                "primary": {"type": "int"},
+                                "secondary": {"type": "int"},
+                            },
+                        },
+                        "mapping": {
+                            "type": "dict"
+                            "suboptions": {
+                                "primary": {"type": "int"},
+                                "secondary": {"type": "list", "elements": "int"},
+                            },
+                        },
+                    },
                 },
             },
         },

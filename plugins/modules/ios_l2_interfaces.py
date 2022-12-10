@@ -133,6 +133,7 @@ options:
             - host
             - trunk
             - promiscuous
+            - trunk_promiscuous
           association:
             description:
             - Asociates the primary private vlan with the secondary private vlan.
@@ -148,8 +149,8 @@ options:
                 type: int
           mapping:
             description:
-            - On a private-vlan promiscuous port, associates a primary private VLAN with all of its secondary private VLAN IDs.
-            - If configured to be private-vlan trunk promiscuous, this will configure the promiscuous mapping for the trunk.
+            - Promiscuous mapping for a primary private VLAN to all of its secondary private VLAN IDs.
+            - This option works for a promiscuous port as well as a promiscuous trunk port.
             type: dict
             suboptions:
               primary:
