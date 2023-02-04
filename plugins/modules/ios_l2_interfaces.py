@@ -131,12 +131,13 @@ options:
             type: str
             choices:
             - host
-            - trunk
             - promiscuous
-            - trunk_promiscuous
-          association:
+            - trunk
+            - promiscuous_trunk
+          host_association:
             description:
             - Asociates the primary private vlan with the secondary private vlan.
+            - Only valid with private_vlan mode host.
             type: dict
             suboptions:
               primary:
@@ -150,7 +151,7 @@ options:
           mapping:
             description:
             - Promiscuous mapping for a primary private VLAN to all of its secondary private VLAN IDs.
-            - This option works for a promiscuous port as well as a promiscuous trunk port.
+            - Only valid with private_vlan mode promiscuous.
             type: dict
             suboptions:
               primary:
@@ -159,8 +160,38 @@ options:
                 type: int
               secondary:
                 description:
-                - List of associated secondary private VLANs.
-                - List items should be the VLAN ID of all secondary private VLANs.
+                - List of associated secondary private VLANs IDs.
+                type: list
+                elements: int
+          trunk_association:
+            description:
+            - Associates the primary private vlan with secondary private VLAN
+            - Only works with private_vlan mode trunk or promiscuous_trunk.
+            type: list
+            elements: dict
+            suboptions:
+              primary:
+                description:
+                - VLAN ID of the primary private VLAN to associate with.
+                type: int
+              secondary:
+                description:
+                - VLAN ID of the secondary private VLAN to associate with.
+                type: int
+          trunk_mapping:
+            description:
+            - Promiscuous private VLAN mapping for a promiscuous trunk.
+            - Only works with private_vlan mode promiscuous_trunk.
+            type: list
+            elements: dict
+            suboptions:
+              primary:
+                description:
+                - The VLAN ID of the primary private VLAN.
+                type: int
+              secondary:
+                description:
+                - List of associated secondary private VLANs IDs.
                 type: list
                 elements: int
 
@@ -564,6 +595,69 @@ EXAMPLES = """
 #             }
 #         }
 #     ]
+
+# Private VLANs configuration examples
+
+# In this example:
+# - VLANs 100 and 110 are isolated private VLANs
+# - Vlans 101 and 111 are community private VLANs
+# - VLANs 90 and 91 are primary private VLANs
+# - VLAN 90 is associated with VLANs 100 and 101
+# - VLAN 91 is associated with VLANs 101 and 111
+
+- name: Private VLANs example
+  cisco.ios.ios_l2_interfaces:
+    config:
+      - name: GigabitEthernet1/0/1
+        mode: private_vlan
+        private_vlan:
+          mode: host
+          host_association:
+            primary: 90
+            secondary: 100
+      - name: GigabitEthernet1/0/2
+        mode: private_vlan
+        private_vlan:
+          mode: promiscuous
+          mapping:
+            primary: 90
+            secondary:
+              - 100
+              - 101
+      - name: GigabitEthernet1/0/3
+        mode: private_vlan
+        private_vlan:
+          mode: trunk
+          trunk_association:
+            - primary: 90
+              secondary: 100
+            - primary: 91
+              secondary: 110
+      - name: GigabitEthernet1/0/4
+        mode: private_vlan
+        private_vlan:
+          mode: promiscuous_trunk
+          trunk_mapping:
+            - primary: 90
+              secondary:
+                - 100
+                - 101
+            - primary: 91
+              secondary:
+                - 110
+                - 111
+          trunk_association:
+            - primary: 90
+              secondary: 100
+            - primary: 91
+              secondary: 110
+      - name: GigabitEthernet1/0/5
+        mode: access
+        access:
+          vlan: 10
+        description: Just a regular access port
+    state: merged
+
 """
 
 RETURN = """
@@ -632,7 +726,7 @@ def main():
     """
     module = AnsibleModule(
         argument_spec=L2_interfacesArgs.argument_spec,
-        mutually_exclusive=[["config", "running_config"]],
+        mutually_exclusive=[["config", "running_config"]]],
         required_if=[
             ["state", "merged", ["config"]],
             ["state", "replaced", ["config"]],

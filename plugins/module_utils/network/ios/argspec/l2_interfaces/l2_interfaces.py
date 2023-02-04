@@ -77,7 +77,7 @@ class L2_interfacesArgs(object):  # pylint: disable=R0903
                             "type": "str",
                             "choices": ["host", "trunk", "promiscuous", "trunk_promiscuous"],
                         },
-                        "association": {
+                        "host_association": {
                             "type": "dict",
                             "suboptions": {
                                 "primary": {"type": "int"},
@@ -85,7 +85,23 @@ class L2_interfacesArgs(object):  # pylint: disable=R0903
                             },
                         },
                         "mapping": {
-                            "type": "dict"
+                            "type": "dict",
+                            "suboptions": {
+                                "primary": {"type": "int"},
+                                "secondary": {"type": "list", "elements": "int"},
+                            },
+                        },
+                        "trunk_association": {
+                            "type": "list",
+                            "elements": "dict",
+                            "suboptions": {
+                                "primary": {"type": "int"},
+                                "secondary": {"type": "int"},
+                            },
+                        },
+                        "trunk_mapping": {
+                            "type": "list",
+                            "elements": "dict",
                             "suboptions": {
                                 "primary": {"type": "int"},
                                 "secondary": {"type": "list", "elements": "int"},
